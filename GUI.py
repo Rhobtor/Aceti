@@ -19,6 +19,7 @@ from widgets.labels import *
 import pandas as pd
 from tabs.trashdetectiontab import TRASHTAB
 from tabs.trashdetectionlogtab import TRASHLOGTAB
+from tabs.sensortab import SENSORTAB
 import math
 # import machine this is for hard reset (machine.reset())
 version = "1.0.0"
@@ -44,8 +45,8 @@ class ACETI_GUI(tkinter.Tk):
 
         #VARIABLES FOR FUNCTIONS
         self.fullscreenstate = False
-        self.assets=Assets()
-        self.shared=SHARED()
+        self.assets=Assets() # imagen
+        self.shared=SHARED() # los datos compartidos
 
         #get screen size
         monitors = screeninfo.get_monitors()
@@ -73,7 +74,8 @@ class ACETI_GUI(tkinter.Tk):
         self.menubar_buttons.append(self.button_trash_detection)
         self.button_raw_trash_detection = tkinter.Button(self.toolbar, image=self.assets.icon_trash_log, command=lambda a=1: self.change_tab(a), width=40, height=40)
         self.menubar_buttons.append(self.button_raw_trash_detection)
-
+        self.button_sensor_detection = tkinter.Button(self.toolbar, image=self.assets.sensor_icon, command=lambda a=2: self.change_tab(a), width=40, height=40)
+        self.menubar_buttons.append(self.button_sensor_detection)
         for i in self.menubar_buttons:
             i.pack(side='left', expand=False,)
 
@@ -89,6 +91,11 @@ class ACETI_GUI(tkinter.Tk):
         #create trash log tab
         self.TRASHLOGTAB=TRASHLOGTAB(parent=self)
         self.tabs.append(self.TRASHLOGTAB)
+
+        #create trash log tab
+        self.SENSORTAB=SENSORTAB(parent=self)
+        self.tabs.append(self.SENSORTAB)
+
 
         #select init tab
         self.change_tab(0)
@@ -111,7 +118,7 @@ class ACETI_GUI(tkinter.Tk):
                             image=self.assets.icon_trash_log, compound='left')
         filemenu.add_separator()  # Agrega un separador
         filemenu.add_command(label='Exit', command=self.destroy, 
-                            underline=0, accelerator="Ctrl+q",
+                            underline=0, accelerator="ESC",
                             image=self.assets.icon_trash_log, compound='left')
 
         #KEY BINDS
@@ -176,6 +183,7 @@ class ACETI_GUI(tkinter.Tk):
         self.shared.database=self.shared.rawdatabase[self.shared.rawdatabase['Object Lon'].notnull()]
         self.TRASHLOGTAB.table.update_database()
         self.TRASHTAB.update_database()
+        self.SENSORTAB.update_database()
         return True
 
 

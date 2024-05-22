@@ -57,7 +57,8 @@ class SHIP(CanvasPositionMarker):
 
     def update_rotation(self,degrees):
         self.change_icon(ImageTk.PhotoImage(self.parent.assets.image_ship.rotate(degrees)))
-class TRASH(CanvasPositionMarker):
+## aqui lo de gauss y sensor
+class SENSOR(CanvasPositionMarker):
     def __init__(self, name, deg_x: float, deg_y: float,text: str = None, parent=None):
         
         if parent is None:
@@ -101,7 +102,7 @@ class TRASH(CanvasPositionMarker):
         self.set_position(lat,lon)
 
 
-class TRASHTAB(tkinter.ttk.PanedWindow):
+class SENSORTAB(tkinter.ttk.PanedWindow):
     def __init__(self, parent=None):
         if parent is None:
             parent=tkinter.Tk()
@@ -117,9 +118,9 @@ class TRASHTAB(tkinter.ttk.PanedWindow):
 
         super().__init__(orient="horizontal")
 
-        self.trash_tab()
+        self.sensor_tab()
 
-    def trash_tab(self):
+    def sensor_tab(self):
         self.GPS_panel = tkinter.ttk.PanedWindow(orient="vertical")
         self.add(self.GPS_panel)
 
@@ -198,7 +199,7 @@ class TRASHTAB(tkinter.ttk.PanedWindow):
                     self.trashes[i].update_position(value, self.shared.rawdatabase.at[value,"Object Lat"], self.shared.rawdatabase.at[value,"Object Lon"])
                     break
             if not processed: #append new trash
-                aux=TRASH(self.shared.rawdatabase.at[value,"Class"], self.shared.rawdatabase.at[value,"Object Lat"], self.shared.rawdatabase.at[value,"Object Lon"],parent=self)
+                aux=SENSOR(self.shared.rawdatabase.at[value,"Class"], self.shared.rawdatabase.at[value,"Object Lat"], self.shared.rawdatabase.at[value,"Object Lon"],parent=self)
                 aux.last_value=value
                 self.trashes.append(aux)
         for i in self.trashes:

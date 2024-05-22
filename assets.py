@@ -59,6 +59,7 @@ class Assets(object):
         self.path=self.resource_path("assets/")
         
         self.aceti_icon = self.include_image("icon_aceti.png",40,40)
+        self.sensor_icon = self.include_image("icon_sensor.png",40,40)
         self.icon_water_trash = self.include_image("icon_water_trash.png",40,40)
         self.icon_trash_log = self.include_image("icon_trash_log.png",40,40)
         self.icon_play = self.include_image("play.png",35,35)
