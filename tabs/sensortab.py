@@ -137,6 +137,8 @@ class SENSORTAB(tkinter.ttk.PanedWindow):
 
         self.trashes=[]
         self.ships=[]
+        self.sensor=[]
+        self.sensor_paths = []
 
         ##create info bar
         gps_data= tkinter.ttk.PanedWindow(orient="horizontal",height=1)
@@ -187,27 +189,55 @@ class SENSORTAB(tkinter.ttk.PanedWindow):
         if value>=self.shared.database.index[-1]:
             return
         #get next time
-        self.date_var.set(self.shared.rawdatabase.at[value,"Datetime"])
-        self.ships[0].update_rotation(self.shared.rawdatabase.at[value,"Drone Heading"])
-        self.ships[0].set_position(self.shared.rawdatabase.at[value,"Drone Lat"], self.shared.rawdatabase.at[value,"Drone Lon"])
-        if not math.isnan(self.shared.rawdatabase.at[value,"Object Lon"]):
-            processed=False # true si basura registrada
-            #process trash
-            for i in range(len(self.trashes)):
-                if self.trashes[i].name==self.shared.rawdatabase.at[value,"Class"]:
-                    processed=True#update trash
-                    self.trashes[i].update_position(value, self.shared.rawdatabase.at[value,"Object Lat"], self.shared.rawdatabase.at[value,"Object Lon"])
-                    break
-            if not processed: #append new trash
-                aux=SENSOR(self.shared.rawdatabase.at[value,"Class"], self.shared.rawdatabase.at[value,"Object Lat"], self.shared.rawdatabase.at[value,"Object Lon"],parent=self)
-                aux.last_value=value
-                self.trashes.append(aux)
-        for i in self.trashes:
-            i.update(value)
+        # Obtener la fecha y la posición actual del vehículo
+        self.date_var.set(self.shared.rawdatabase.at[value, "Date"])
+        self.ships[0].set_position(self.shared.rawdatabase.at[value, "Latitude"], self.shared.rawdatabase.at[value, "Longitude"])
+
+        # Limpiar los caminos anteriores
+        for path in self.sensor_paths:
+            path.delete()
+        self.sensor_paths.clear()
+
+        # Definir colores para cada tipo de sensor
+        sensor_colors = {
+            "Sonar": "blue",
+            "Turbidity": "green",
+            "Temperature": "red",
+            "PH": "yellow",
+            "Conductivity": "purple"
+        }
+
+        # Obtener el sensor y la posición actual
+        current_sensor = self.shared.rawdatabase.at[value, "Sensor"]
+        current_lat = self.shared.rawdatabase.at[value, "Latitude"]
+        current_lon = self.shared.rawdatabase.at[value, "Longitude"]
+
+        # if not math.isnan(current_lon):
+        #     processed = False  # True si basura registrada
+        #     for i in range(len(self.trashes)):
+        #         if self.trashes[i].name == current_sensor:
+        #             processed = True  # Update trash
+        #             self.trashes[i].update_position(value, current_lat, current_lon)
+        #             break
+        #     if not processed:  # Append new trash
+        #         aux = SENSOR(current_sensor, current_lat, current_lon, parent=self)
+        #         aux.last_value = value
+        #         self.trashes.append(aux)
+        #     for i in self.trashes:
+        #         i.update(value)
+
+        # Dibujar el camino solo hasta el punto actual para el sensor actual
+        color = sensor_colors.get(current_sensor, "black")
+        sensor_data = self.shared.rawdatabase[self.shared.rawdatabase['Sensor'] == current_sensor]
+        positions = list(zip(sensor_data['Latitude'], sensor_data['Longitude']))
+        current_position = (current_lat, current_lon)
+        if current_position in positions:
+            pos_index = positions.index(current_position)
+            path_positions = positions[:pos_index + 1]
+            path = self.map_widget.set_path(path_positions, color=color, width=2)
+            self.sensor_paths.append(path)
 
 
-
-        
 
 
     def execute_time(self):
@@ -232,10 +262,11 @@ class SENSORTAB(tkinter.ttk.PanedWindow):
         self.map_widget.fit_bounding_box(self.topleft, self.bottomright)
 
     def update_database(self):
-        self.date_var.set(self.shared.rawdatabase.at[0,"Datetime"])
+
+        self.date_var.set(self.shared.rawdatabase.at[0,"Date"])
         self.timeline.config(to=len(self.shared.rawdatabase))
         self.playbuttom.config(state="normal")
-        self.ships.append(SHIP("vehicle_1", self.shared.rawdatabase.at[0,"Drone Lat"], self.shared.rawdatabase.at[0,"Drone Lon"],parent=self))
-        self.ships[0].update_rotation(self.shared.rawdatabase.at[0,"Drone Heading"])
+        self.ships.append(SHIP("vehicle_1", self.shared.rawdatabase.at[0,"Latitude"], self.shared.rawdatabase.at[0,"Longitude"],parent=self))
+        # self.ships[0].update_rotation(self.shared.rawdatabase.at[0,"Drone Heading"])
 
 
